@@ -57,8 +57,6 @@ if selected == "🌦️ Predict Disaster":
     st.title("🔍 Disaster Alert Prediction")
 
     if model is not None:
-        input_df = pd.DataFrame()  # Initialize to avoid Pylance undefined warning
-
         col1, col2 = st.columns(2)
 
         with col1:
@@ -70,38 +68,7 @@ if selected == "🌦️ Predict Disaster":
             humidity = st.number_input("💧 Humidity (%)", 0.0, 100.0, 50.0)
             wind_speed = st.number_input("🌬️ Wind Speed (km/h)", 0.0, 200.0, 40.0)
 
-            # ========== Validate and Clean Input Before Prediction ==========
-
-            # Ensure all columns exist and are numeric
-            expected_cols = list(model.feature_names_in_)  # model must have been trained with named columns
-            for col in expected_cols:
-                if col not in input_df.columns:
-                    input_df[col] = 0  # add any missing columns
-
-            # Reorder columns exactly as the model expects
-            input_df = input_df[expected_cols]
-
-            # Convert all numeric columns properly
-            input_df = input_df.apply(pd.to_numeric, errors='coerce')
-
-            # Replace any NaN with 0 (safe fallback)
-            input_df = input_df.fillna(0)
-
-            # Optional debug info (useful if still errors)
-            st.write("🧾 Input DataFrame going into model:")
-            st.write(input_df)
-            st.write("Data Types:")
-            st.write(input_df.dtypes)
-
-            # Now safely predict
-            prediction = model.predict(input_df)[0]
-            probability = model.predict_proba(input_df)[0][1] * 100
-
-
-        # Prepare Input
-        # ========== Prepare Input Data (Fixed) ==========
-
-        # Create dummy variables for all known regions — make sure all four are present
+        # ✅ Prepare Input DataFrame AFTER collecting inputs
         input_data = {
             "temperature": [temperature],
             "humidity": [humidity],
@@ -109,33 +76,39 @@ if selected == "🌦️ Predict Disaster":
             "wind_speed": [wind_speed],
             "region_North": [1 if region == "North" else 0],
             "region_South": [1 if region == "South" else 0],
-            "region_East":  [1 if region == "East"  else 0],
-            "region_West":  [1 if region == "West"  else 0]
+            "region_East":  [1 if region == "East" else 0],
+            "region_West":  [1 if region == "West" else 0]
         }
 
         input_df = pd.DataFrame(input_data)
 
-        # Match columns with those seen during model training
-        expected_cols = model.feature_names_in_  # only works if model was trained with feature names
+        # ✅ Match columns with model's training features
+        expected_cols = model.feature_names_in_
         for col in expected_cols:
             if col not in input_df.columns:
-                input_df[col] = 0  # add missing ones as 0
+                input_df[col] = 0
         input_df = input_df[expected_cols]
 
+        # ✅ Debugging (optional)
+        # st.write("Input DataFrame:", input_df)
+        # st.write("Shape:", input_df.shape)
 
-        # Predict Button
+        # ✅ Predict only when button clicked
         if st.button("🚨 Predict Disaster Alert"):
-            prediction = model.predict(input_df)[0]
-            probability = model.predict_proba(input_df)[0][1] * 100
-
-            st.markdown("---")
-            if prediction == 1:
-                st.error(f"🚨 **Disaster Alert!** Probability: {probability:.2f}%")
-                st.image("https://cdn-icons-png.flaticon.com/512/748/748073.png", width=200)
-                st.warning("⚠️ Please activate early warning protocols and notify authorities!")
+            if input_df.empty:
+                st.error("⚠️ No input data found. Please fill all fields.")
             else:
-                st.success(f"✅ No Disaster Expected. Safety Level: {100 - probability:.2f}%")
-                st.image("https://cdn-icons-png.flaticon.com/512/942/942799.png", width=200)
+                prediction = model.predict(input_df)[0]
+                probability = model.predict_proba(input_df)[0][1] * 100
+
+                st.markdown("---")
+                if prediction == 1:
+                    st.error(f"🚨 **Disaster Alert!** Probability: {probability:.2f}%")
+                    st.image("https://cdn-icons-png.flaticon.com/512/748/748073.png", width=200)
+                    st.warning("⚠️ Please activate early warning protocols and notify authorities!")
+                else:
+                    st.success(f"✅ No Disaster Expected. Safety Level: {100 - probability:.2f}%")
+                    st.image("https://cdn-icons-png.flaticon.com/512/942/942799.png", width=200)
     else:
         st.error("⚠️ Model not loaded. Please train it first.")
 
