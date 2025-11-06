@@ -57,6 +57,8 @@ if selected == "🌦️ Predict Disaster":
     st.title("🔍 Disaster Alert Prediction")
 
     if model is not None:
+        input_df = pd.DataFrame()  # Initialize to avoid Pylance undefined warning
+
         col1, col2 = st.columns(2)
 
         with col1:
@@ -68,10 +70,38 @@ if selected == "🌦️ Predict Disaster":
             humidity = st.number_input("💧 Humidity (%)", 0.0, 100.0, 50.0)
             wind_speed = st.number_input("🌬️ Wind Speed (km/h)", 0.0, 200.0, 40.0)
 
+            # ========== Validate and Clean Input Before Prediction ==========
+
+            # Ensure all columns exist and are numeric
+            expected_cols = list(model.feature_names_in_)  # model must have been trained with named columns
+            for col in expected_cols:
+                if col not in input_df.columns:
+                    input_df[col] = 0  # add any missing columns
+
+            # Reorder columns exactly as the model expects
+            input_df = input_df[expected_cols]
+
+            # Convert all numeric columns properly
+            input_df = input_df.apply(pd.to_numeric, errors='coerce')
+
+            # Replace any NaN with 0 (safe fallback)
+            input_df = input_df.fillna(0)
+
+            # Optional debug info (useful if still errors)
+            st.write("🧾 Input DataFrame going into model:")
+            st.write(input_df)
+            st.write("Data Types:")
+            st.write(input_df.dtypes)
+
+            # Now safely predict
+            prediction = model.predict(input_df)[0]
+            probability = model.predict_proba(input_df)[0][1] * 100
+
+
         # Prepare Input
         # ========== Prepare Input Data (Fixed) ==========
 
-# Create dummy variables for all known regions — make sure all four are present
+        # Create dummy variables for all known regions — make sure all four are present
         input_data = {
             "temperature": [temperature],
             "humidity": [humidity],
