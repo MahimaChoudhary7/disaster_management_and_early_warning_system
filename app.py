@@ -69,16 +69,29 @@ if selected == "🌦️ Predict Disaster":
             wind_speed = st.number_input("🌬️ Wind Speed (km/h)", 0.0, 200.0, 40.0)
 
         # Prepare Input
+        # ========== Prepare Input Data (Fixed) ==========
+
+# Create dummy variables for all known regions — make sure all four are present
         input_data = {
             "temperature": [temperature],
             "humidity": [humidity],
             "rainfall": [rainfall],
             "wind_speed": [wind_speed],
-            "region_East": [1 if region == "East" else 0],
+            "region_North": [1 if region == "North" else 0],
             "region_South": [1 if region == "South" else 0],
-            "region_West": [1 if region == "West" else 0]
+            "region_East":  [1 if region == "East"  else 0],
+            "region_West":  [1 if region == "West"  else 0]
         }
+
         input_df = pd.DataFrame(input_data)
+
+        # Match columns with those seen during model training
+        expected_cols = model.feature_names_in_  # only works if model was trained with feature names
+        for col in expected_cols:
+            if col not in input_df.columns:
+                input_df[col] = 0  # add missing ones as 0
+        input_df = input_df[expected_cols]
+
 
         # Predict Button
         if st.button("🚨 Predict Disaster Alert"):
