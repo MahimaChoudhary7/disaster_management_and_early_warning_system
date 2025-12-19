@@ -22,7 +22,7 @@ wind_speed = np.random.uniform(0, 150, n_samples)         # km/h
 regions = np.random.choice(["North", "South", "East", "West"], n_samples)
 
 # ============================
-# Logical rules for disasters
+# Define Logical Disaster Rules
 # ============================
 conditions = []
 for t, h, r, w in zip(temperature, humidity, rainfall, wind_speed):
@@ -70,7 +70,6 @@ preprocessor = ColumnTransformer(
     ]
 )
 
-# Random Forest Classifier
 model = RandomForestClassifier(
     n_estimators=300,
     max_depth=12,
