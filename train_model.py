@@ -96,19 +96,16 @@ print("\n🔍 Classification Report:")
 print(classification_report(y_test, y_pred))
 
 # Save Model SAFELY
-os.makedirs("model", exist_ok=True)
+import os
+import joblib
 
-data = joblib.load("model/model.pkl")
+MODEL_PATH = "model/model.pkl"
+
+if not os.path.exists(MODEL_PATH):
+    import train_model  # triggers training
+
+data = joblib.load(MODEL_PATH)
 model = data["model"]
-
-joblib.dump({
-    "model": pipeline,
-    "features": numeric_features + categorical_features,
-    "classes": list(pipeline.classes_)
-}, "model/model.pkl")
-
-if not os.path.exists("model/model.pkl"):
-    import train_model  # your training file
 
 print("\n💾 Model saved successfully at: model/model.pkl")
 print("🏷️ Classes learned:", pipeline.classes_)
