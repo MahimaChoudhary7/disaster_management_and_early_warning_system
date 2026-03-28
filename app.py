@@ -27,9 +27,9 @@ if os.path.exists(model_path):
     try:
         model = joblib.load(model_path)
         accuracy = np.random.uniform(92, 98)
-        st.sidebar.success("✅ Model Loaded Successfully!")
+        st.sidebar.success("Model Loaded Successfully!")
     except Exception as e:
-        st.sidebar.error(f"❌ Error loading model: {e}")
+        st.sidebar.error(f"Error loading model: {e}")
 else:
     st.sidebar.error("⚠️ Model file not found. Please run train_model.py first.")
 
@@ -40,21 +40,19 @@ if selected == "🏠 Home":
     This intelligent system predicts **which type of disaster** may occur based on environmental conditions.
 
     It uses a **Random Forest Classifier** trained on:
-    - 🌡️ Temperature  
-    - 💧 Humidity  
-    - 🌧️ Rainfall  
-    - 🌬️ Wind Speed  
-    - 📍 Region  
+    - 🌡️ Temperature
+    - 💧 Humidity
+    - 🌧️ Rainfall
+    - 🌬️ Wind Speed
+    - 📍 Region
 
     The model can predict:
-    - 🌊 Flood  
-    - 🌪️ Cyclone  
-    - 🔥 Heatwave  
-    - ✅ No Disaster  
+    - 🌊 Flood
+    - 🌪️ Cyclone
+    - 🔥 Heatwave
+    - ✅ No Disaster
     """)
-    st.image("https://cdn-icons-png.flaticon.com/512/1670/1670441.png", width=250)
     st.markdown("---")
-    st.success("Developed by **Mahima Choudhary** | Advanced Python Programming Mini Project")
 
 # ===================== PREDICT PAGE =====================
 elif selected == "🌦️ Predict Disaster":
@@ -126,11 +124,11 @@ elif selected == "📊 Model Info":
     st.title("📈 Model Information")
     if model is not None:
         st.write(f"""
-        **Model Type:** Random Forest Classifier  
-        **Accuracy:** {accuracy:.2f}%  
-        **Algorithm:** Ensemble Learning (Multiple Decision Trees)  
-        **Dataset Size:** 1000 samples (synthetic)  
-        **Features:** Temperature, Humidity, Rainfall, Wind Speed, Region  
+        **Model Type:** Random Forest Classifier
+        **Accuracy:** {accuracy:.2f}%
+        **Algorithm:** Ensemble Learning (Multiple Decision Trees)
+        **Dataset Size:** 1000 samples (synthetic)
+        **Features:** Temperature, Humidity, Rainfall, Wind Speed, Region
         **Target:** Disaster Type (Flood, Cyclone, Heatwave, No Disaster)
         """)
         st.progress(accuracy / 100)
